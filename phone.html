@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>HandGPT — Phone Pad</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#0d1117;
+  --surface:#161b22;
+  --border:#21262d;
+  --text:#c9d1d9;
+  --text2:#8b949e;
+  --green:#3fb950;
+  --blue:#58a6ff;
+  --purple:#bc8cff;
+  --orange:#f0883e;
+  --red:#f85149;
+  --yellow:#d29922;
+}
+html,body{height:100%;overflow:hidden;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Segoe UI',system-ui,sans-serif;
+  display:flex;flex-direction:column;
+  max-width:420px;margin:0 auto;
+}
+
+/* ── HEADER ── */
+header{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:10px 16px;
+  display:flex;align-items:center;gap:10px;
+  flex-shrink:0;
+}
+header h1{font-size:14px;color:var(--purple);font-weight:700;}
+#status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);margin-left:auto;
+  box-shadow:0 0 8px var(--green);}
+#status-txt{font-size:10px;color:var(--green);}
+
+/* ── LAST SENT DISPLAY ── */
+.last-sent{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:10px 16px;
+  display:flex;align-items:center;gap:12px;
+  flex-shrink:0;
+}
+#last-label{
+  font-size:36px;font-weight:900;color:var(--green);
+  min-width:50px;text-align:center;
+  transition:transform .15s,opacity .15s;
+}
+#last-label.pop{animation:pop .3s ease;}
+@keyframes pop{0%{transform:scale(.7);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+.last-meta{flex:1;}
+#last-name{font-size:12px;color:var(--text2);margin-bottom:2px;}
+#last-time{font-size:10px;color:var(--border);}
+
+/* ── TABS ── */
+.tabs{
+  display:flex;border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.tab{
+  flex:1;padding:8px;text-align:center;font-size:12px;font-weight:600;
+  color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;
+  transition:color .2s,border-color .2s;
+  background:none;border-top:none;border-left:none;border-right:none;
+}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+
+/* ── BUTTON GRID ── */
+.pad-wrap{
+  flex:1;overflow-y:auto;padding:12px;
+  display:flex;flex-direction:column;gap:8px;
+}
+.section-label{
+  font-size:9px;text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--text2);padding:2px 0 4px;font-weight:600;
+}
+.btn-grid{
+  display:grid;gap:8px;
+}
+.btn-grid.cols5{grid-template-columns:repeat(5,1fr);}
+.btn-grid.cols4{grid-template-columns:repeat(4,1fr);}
+
+.gBtn{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:10px;
+  color:var(--text);
+  font-size:18px;font-weight:800;
+  padding:14px 8px;
+  cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  transition:background .1s,border-color .1s,transform .1s;
+  -webkit-user-select:none;user-select:none;
+  position:relative;overflow:hidden;
+}
+.gBtn .sub{font-size:8px;font-weight:400;color:var(--text2);letter-spacing:.5px;}
+.gBtn:active,.gBtn.pressed{
+  background:#1c2128;
+  border-color:var(--blue);
+  transform:scale(.94);
+}
+.gBtn.pressed::after{
+  content:'';position:absolute;inset:0;
+  background:rgba(88,166,255,.12);border-radius:10px;
+}
+/* number buttons - blue accent */
+.gBtn.num{border-color:#1a2535;}
+.gBtn.num:active,.gBtn.num.pressed{border-color:var(--blue);}
+/* letter buttons - purple accent */
+.gBtn.let{border-color:#1e1a28;}
+.gBtn.let:active,.gBtn.let.pressed{border-color:var(--purple);}
+/* special */
+.gBtn.special{
+  background:linear-gradient(135deg,#1a2e1a,#162316);
+  border-color:var(--green);color:var(--green);
+}
+
+/* panel hiding */
+.panel{display:none;}
+.panel.active{display:flex;flex-direction:column;gap:8px;}
+
+/* ── RIPPLE ── */
+.ripple{
+  position:absolute;border-radius:50%;
+  background:rgba(255,255,255,.18);
+  transform:scale(0);animation:ripple-anim .5s linear;
+  pointer-events:none;
+}
+@keyframes ripple-anim{to{transform:scale(4);opacity:0;}}
+
+/* ── SEND LOG ── */
+.log-wrap{flex:1;overflow-y:auto;padding:12px;}
+.log-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 10px;border-radius:6px;
+  background:var(--surface);border:1px solid var(--border);
+  margin-bottom:6px;font-size:12px;
+}
+.log-lbl{font-size:18px;font-weight:800;color:var(--green);min-width:30px;}
+.log-time{font-size:10px;color:var(--text2);margin-left:auto;}
+</style>
+</head>
+<body>
+
+<header>
+  <span style="font-size:16px">📱</span>
+  <h1>HandGPT Phone Pad</h1>
+  <div id="status-dot"></div>
+  <span id="status-txt">Live</span>
+</header>
+
+<!-- Last sent display -->
+<div class="last-sent">
+  <div id="last-label">—</div>
+  <div class="last-meta">
+    <div id="last-name">No gesture sent yet</div>
+    <div id="last-time">Tap a button below to send</div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('numbers',this)">0–9 Numbers</button>
+  <button class="tab" onclick="switchTab('letters',this)">A–J Letters</button>
+  <button class="tab" onclick="switchTab('log',this)">Log</button>
+</div>
+
+<!-- Numbers panel -->
+<div class="pad-wrap panel active" id="panel-numbers">
+  <div class="section-label">Number Gestures</div>
+  <div class="btn-grid cols5" id="num-grid"></div>
+  <div class="gBtn special" onclick="sendGesture('HI','Wave Hi')" style="margin-top:4px;">
+    👋 <span class="sub">WAVE HI</span>
+  </div>
+</div>
+
+<!-- Letters panel -->
+<div class="pad-wrap panel" id="panel-letters">
+  <div class="section-label">Letter Gestures (A–J)</div>
+  <div class="btn-grid cols5" id="let-grid"></div>
+</div>
+
+<!-- Log panel -->
+<div class="log-wrap panel" id="panel-log">
+  <div id="log-list">
+    <div style="font-size:11px;color:var(--text2);padding:10px 0;">No gestures sent yet.</div>
+  </div>
+</div>
+
+<script>
+const bc = new BroadcastChannel('handgpt');
+let sendLog = [];
+
+// ── Number gesture meanings ──
+const NUM_NAMES = {
+  '0':'Zero / OK','1':'One','2':'Two / Peace',
+  '3':'Three','4':'Four','5':'Five / Open',
+  '6':'Six','7':'Seven','8':'Eight','9':'Nine'
+};
+
+// ── Letter gesture meanings ──
+const LET_NAMES = {
+  'A':'Fist','B':'Four fingers','C':'Curved hand',
+  'D':'D-shape','E':'Claw','F':'F-shape',
+  'G':'Point right','H':'Point out','I':'Pinky up','J':'J-hook'
+};
+
+// ── Build number grid ──
+const numGrid = document.getElementById('num-grid');
+for(let i=0;i<=9;i++){
+  const btn = document.createElement('button');
+  btn.className = 'gBtn num';
+  btn.innerHTML = `${i}<span class="sub">${NUM_NAMES[String(i)].split('/')[0].trim()}</span>`;
+  btn.onclick = function(e){ ripple(e,this); sendGesture(String(i), NUM_NAMES[String(i)]); };
+  numGrid.appendChild(btn);
+}
+
+// ── Build letter grid ──
+const letGrid = document.getElementById('let-grid');
+'ABCDEFGHIJ'.split('').forEach(l=>{
+  const btn = document.createElement('button');
+  btn.className = 'gBtn let';
+  btn.innerHTML = `${l}<span class="sub">${LET_NAMES[l]}</span>`;
+  btn.onclick = function(e){ ripple(e,this); sendGesture(l, LET_NAMES[l]); };
+  letGrid.appendChild(btn);
+});
+
+// ── Send gesture ──
+function sendGesture(label, name){
+  // BroadcastChannel (same browser, any tab)
+  bc.postMessage({type:'gesture', label, name});
+
+  // localStorage fallback (cross-window)
+  localStorage.setItem('handgpt_gesture', JSON.stringify({
+    label, name, t: Date.now()
+  }));
+
+  // Update last sent display
+  const el = document.getElementById('last-label');
+  el.classList.remove('pop');
+  void el.offsetWidth;
+  el.textContent = label;
+  el.classList.add('pop');
+  document.getElementById('last-name').textContent = name || label;
+  document.getElementById('last-time').textContent =
+    'Sent at ' + new Date().toLocaleTimeString();
+
+  // Log
+  sendLog.unshift({label, name, time: new Date().toLocaleTimeString()});
+  if(sendLog.length > 50) sendLog.pop();
+  renderLog();
+
+  // Brief button press flash
+  flashStatus();
+}
+
+function flashStatus(){
+  const dot = document.getElementById('status-dot');
+  const txt = document.getElementById('status-txt');
+  dot.style.background = '#58a6ff';
+  dot.style.boxShadow = '0 0 10px #58a6ff';
+  txt.style.color = '#58a6ff';
+  txt.textContent = 'Sent!';
+  setTimeout(()=>{
+    dot.style.background = 'var(--green)';
+    dot.style.boxShadow = '0 0 8px var(--green)';
+    txt.style.color = 'var(--green)';
+    txt.textContent = 'Live';
+  }, 800);
+}
+
+// ── Ripple effect ──
+function ripple(e, btn){
+  const r = document.createElement('span');
+  r.className = 'ripple';
+  const rect = btn.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  r.style.width = r.style.height = size+'px';
+  r.style.left = (e.clientX - rect.left - size/2)+'px';
+  r.style.top  = (e.clientY - rect.top  - size/2)+'px';
+  btn.appendChild(r);
+  setTimeout(()=>r.remove(), 600);
+
+  btn.classList.add('pressed');
+  setTimeout(()=>btn.classList.remove('pressed'), 200);
+}
+
+// ── Tab switching ──
+function switchTab(name, tabEl){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  tabEl.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+// ── Render log ──
+function renderLog(){
+  const list = document.getElementById('log-list');
+  if(!sendLog.length){
+    list.innerHTML='<div style="font-size:11px;color:var(--text2);padding:10px 0;">No gestures sent yet.</div>';
+    return;
+  }
+  list.innerHTML = sendLog.map(e=>`
+    <div class="log-item">
+      <div class="log-lbl">${e.label}</div>
+      <div>
+        <div style="color:var(--text);font-size:12px;">${e.name||e.label}</div>
+        <div style="font-size:10px;color:var(--text2);">Gesture sent</div>
+      </div>
+      <div class="log-time">${e.time}</div>
+    </div>
+  `).join('');
+}
+</script>
+</body>
+</html>

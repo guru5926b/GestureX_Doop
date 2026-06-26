@@ -6,397 +6,233 @@
 <title>HandGPT — Dashboard</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-:root{
-  --bg:#0d1117;
-  --surface:#161b22;
-  --border:#21262d;
-  --border2:#30363d;
-  --text:#c9d1d9;
-  --text2:#8b949e;
-  --green:#3fb950;
-  --blue:#58a6ff;
-  --purple:#bc8cff;
-  --orange:#f0883e;
-  --red:#f85149;
-  --yellow:#d29922;
-}
+:root{--bg:#0d1117;--surface:#161b22;--border:#21262d;--border2:#30363d;--text:#c9d1d9;--text2:#8b949e;--green:#3fb950;--blue:#58a6ff;--purple:#bc8cff;--orange:#f0883e;--red:#f85149;--yellow:#d29922;}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;}
-
-/* ── HEADER ── */
-header{
-  background:var(--surface);
-  border-bottom:1px solid var(--border);
-  padding:12px 20px;
-  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
-}
-header h1{color:var(--blue);font-size:15px;font-weight:700;letter-spacing:.3px;}
-#conn-dot{width:9px;height:9px;border-radius:50%;background:var(--green);
-  box-shadow:0 0 8px var(--green);animation:pulse-dot 2s infinite;}
-@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.5}}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+header h1{color:var(--blue);font-size:15px;font-weight:700;}
+#conn-dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pdot 2s infinite;}
+@keyframes pdot{0%,100%{opacity:1}50%{opacity:.4}}
 #conn-label{font-size:11px;color:var(--green);}
 .bstat{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;}
-.chip{font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--green);
-  color:var(--green);background:#0d1117;}
+.chip{font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--green);color:var(--green);background:#0d1117;}
 .chip.warn{border-color:var(--yellow);color:var(--yellow);}
-
-/* ── LAYOUT ── */
 .wrap{padding:16px;max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:14px;}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;}
-.card-title{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--text2);
-  margin-bottom:14px;font-weight:600;}
-
-/* ── SENSOR TABLE ── */
+.card-title{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--text2);margin-bottom:14px;font-weight:600;}
 table{width:100%;border-collapse:collapse;font-size:12px;}
-th{color:var(--text2);padding:5px 10px;text-align:left;border-bottom:1px solid var(--border);
-  font-size:10px;text-transform:uppercase;letter-spacing:.8px;}
+th{color:var(--text2);padding:5px 10px;text-align:left;border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;}
 td{padding:6px 10px;border-bottom:1px solid var(--bg);font-family:monospace;}
 .sn{font-family:'Segoe UI',sans-serif;font-weight:700;color:#e6edf3;font-size:12px;}
 .vok{color:var(--green);}
-.sdot-row{display:flex;gap:4px;align-items:center;margin-left:8px;}
-.sdot{width:8px;height:8px;border-radius:50%;background:var(--green);}
-
-/* ── BIG MATCH BOX ── */
-.match-outer{
-  background:var(--bg);border:1px solid var(--border);border-radius:10px;
-  padding:20px 24px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;
-  min-height:110px;position:relative;overflow:hidden;
-}
-.match-outer::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 30% 50%, rgba(63,185,80,.06) 0%, transparent 70%);
-  pointer-events:none;
-}
-#gesture-label{
-  font-size:52px;font-weight:900;letter-spacing:3px;
-  color:var(--green);font-family:'Segoe UI',sans-serif;
-  transition:opacity .2s,transform .2s;
-  text-shadow:0 0 40px rgba(63,185,80,.4);
-  min-width:120px;
-}
+.match-outer{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:20px 24px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;min-height:110px;position:relative;overflow:hidden;}
+.match-outer::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(63,185,80,.06) 0%,transparent 70%);pointer-events:none;}
+#gesture-label{font-size:52px;font-weight:900;letter-spacing:3px;color:var(--green);font-family:'Segoe UI',sans-serif;text-shadow:0 0 40px rgba(63,185,80,.4);min-width:120px;}
 #gesture-label.flash{animation:gflash .4s ease;}
-@keyframes gflash{
-  0%{opacity:0;transform:scale(.85);}
-  60%{opacity:1;transform:scale(1.06);}
-  100%{transform:scale(1);}
-}
+@keyframes gflash{0%{opacity:0;transform:scale(.85)}60%{opacity:1;transform:scale(1.06)}100%{transform:scale(1)}}
 .match-meta{flex:1;}
 #conf-text{font-size:11px;color:var(--text2);margin-bottom:6px;}
 .bar-wrap{background:var(--border);border-radius:4px;height:8px;overflow:hidden;}
-#conf-bar{height:100%;background:linear-gradient(90deg,var(--green),#58d68d);
-  border-radius:4px;width:0;transition:width .5s cubic-bezier(.4,0,.2,1);}
+#conf-bar{height:100%;background:linear-gradient(90deg,var(--green),#58d68d);border-radius:4px;width:0;transition:width .5s cubic-bezier(.4,0,.2,1);}
 #match-sub{font-size:11px;color:var(--text2);margin-top:8px;}
-.face-pill{
-  font-size:10px;font-weight:800;padding:2px 10px;border-radius:10px;
-  letter-spacing:.5px;border:1px solid var(--green);
-  background:#1a2e1a;color:var(--green);
-}
+.face-pill{font-size:10px;font-weight:800;padding:2px 10px;border-radius:10px;letter-spacing:.5px;border:1px solid var(--green);background:#1a2e1a;color:var(--green);}
 .face-pill.back{border-color:var(--orange);background:#2e1a1a;color:var(--orange);}
-
-/* ── SPEECH WAVE ── */
 #wave-wrap{display:flex;align-items:center;gap:3px;height:28px;margin-left:auto;}
-.wbar{width:4px;border-radius:2px;background:var(--blue);height:6px;
-  transition:height .15s;opacity:.7;}
-
-/* ── GESTURE HISTORY ── */
+.wbar{width:4px;border-radius:2px;background:var(--blue);height:6px;transition:height .15s;opacity:.7;}
 #history-wrap{display:flex;gap:6px;flex-wrap:wrap;}
-.hist-pill{
-  font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px;
-  border:1px solid var(--border2);background:var(--bg);color:var(--text2);
-  transition:all .3s;
-}
+.hist-pill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px;border:1px solid var(--border2);background:var(--bg);color:var(--text2);transition:all .3s;}
 .hist-pill.new{border-color:var(--blue);color:var(--blue);background:#0d1f33;}
-
-/* ── STATUS FOOTER ── */
 .status-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
 .stat-item{font-size:11px;color:var(--text2);}
 .stat-item span{color:var(--text);}
-
-/* ── OPEN PHONE BTN ── */
-#open-phone{
-  position:fixed;bottom:20px;right:20px;
-  background:var(--purple);color:#000;border:none;border-radius:10px;
-  padding:12px 20px;font-size:13px;font-weight:800;cursor:pointer;
-  box-shadow:0 4px 20px rgba(188,140,255,.4);
-  display:flex;align-items:center;gap:8px;
-  transition:transform .15s,box-shadow .15s;
-}
-#open-phone:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(188,140,255,.5);}
+#setup-banner{background:#1a1228;border:1px solid var(--purple);border-radius:8px;padding:14px 16px;font-size:12px;color:var(--purple);line-height:1.8;}
+#setup-banner.hide{display:none;}
+#setup-banner code{background:#0d1117;padding:2px 6px;border-radius:4px;font-size:11px;color:#e6edf3;}
 </style>
 </head>
 <body>
-
 <header>
   <span style="font-size:18px">🖐</span>
   <h1>HandGPT Dashboard</h1>
   <div id="conn-dot"></div>
-  <span id="conn-label">Connected</span>
+  <span id="conn-label">Connecting...</span>
   <div class="bstat">
     <span class="chip">PCA: OK</span>
     <span class="chip">MPU: 6/6</span>
-    <span class="chip">WiFi: 192.168.29.31</span>
     <span class="chip">Flash: OK</span>
+    <span class="chip warn" id="fb-chip">Firebase: ...</span>
   </div>
 </header>
-
 <div class="wrap">
 
-  <!-- BIG MATCH -->
-  <div class="card">
-    <div class="card-title">Gesture Recognition</div>
-    <div class="match-outer">
-      <div>
-        <div style="font-size:10px;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Detected Gesture</div>
-        <div id="gesture-label">—</div>
-        <div style="margin-top:8px;">
-          <span id="face-pill" class="face-pill">FRONT (5)</span>
-        </div>
-      </div>
-      <div class="match-meta">
-        <div id="conf-text">Waiting for gesture...</div>
-        <div class="bar-wrap"><div id="conf-bar"></div></div>
-        <div id="match-sub" style="margin-top:8px;"></div>
-      </div>
-      <div id="wave-wrap">
-        <div class="wbar" id="w0"></div>
-        <div class="wbar" id="w1"></div>
-        <div class="wbar" id="w2"></div>
-        <div class="wbar" id="w3"></div>
-        <div class="wbar" id="w4"></div>
-        <div class="wbar" id="w5"></div>
-        <div class="wbar" id="w6"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SENSOR TABLE -->
-  <div class="card">
-    <div class="card-title">Live Sensor Monitor
-      <span class="sdot-row" style="display:inline-flex;margin-left:8px;">
-        <span class="sdot" title="Palm"></span>
-        <span class="sdot" title="Middle"></span>
-        <span class="sdot" title="Thumb"></span>
-        <span class="sdot" title="Ring"></span>
-        <span class="sdot" title="Little"></span>
-        <span class="sdot" title="Index"></span>
-      </span>
-    </div>
-    <table>
-      <thead><tr>
-        <th>Sensor</th><th>Status</th>
-        <th>Pitch</th><th>Roll</th>
-        <th>Filtered P</th><th>Filtered R</th>
-      </tr></thead>
-      <tbody id="sensor-tbody"></tbody>
-    </table>
-  </div>
-
-  <!-- HISTORY -->
-  <div class="card">
-    <div class="card-title">Gesture History</div>
-    <div id="history-wrap">
-      <span style="font-size:11px;color:var(--text2);">No gestures yet — use the Phone Pad</span>
-    </div>
-  </div>
-
-  <!-- STATUS -->
-  <div class="card">
-    <div class="card-title">System Status</div>
-    <div class="status-row">
-      <div class="stat-item">Uptime: <span id="uptime">00:00</span></div>
-      <div class="stat-item">Gestures received: <span id="gcount">0</span></div>
-      <div class="stat-item">Filter: <span>Kalman</span></div>
-      <div class="stat-item">Sample rate: <span>80ms</span></div>
-      <div class="stat-item">Last gesture: <span id="last-time">—</span></div>
-    </div>
-  </div>
-
+<div id="setup-banner">
+  <strong style="color:#e6edf3;font-size:13px;">⚙️ One-time Firebase setup</strong><br>
+  1. Go to <a href="https://console.firebase.google.com/" target="_blank" style="color:var(--blue)">console.firebase.google.com</a> → Create project (free)<br>
+  2. Add a Web App → copy the <code>firebaseConfig</code> object<br>
+  3. Go to <strong>Realtime Database</strong> → Create database → Start in <strong>test mode</strong><br>
+  4. Open both <code>dashboard.html</code> and <code>phone.html</code> in a text editor → paste your config in the marked section in both files<br>
+  5. Host both files on <a href="https://pages.github.com" target="_blank" style="color:var(--blue)">GitHub Pages</a> (free) — done! ✅
 </div>
 
-<!-- Floating open phone button -->
-<button id="open-phone" onclick="openPhone()">📱 Open Phone Pad</button>
+<div class="card">
+  <div class="card-title">Gesture Recognition — Live from Phone</div>
+  <div class="match-outer">
+    <div>
+      <div style="font-size:10px;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Detected Gesture</div>
+      <div id="gesture-label">—</div>
+      <div style="margin-top:8px;"><span id="face-pill" class="face-pill">FRONT (5)</span></div>
+    </div>
+    <div class="match-meta">
+      <div id="conf-text">Waiting for gesture from phone...</div>
+      <div class="bar-wrap"><div id="conf-bar"></div></div>
+      <div id="match-sub"></div>
+    </div>
+    <div id="wave-wrap">
+      <div class="wbar" id="w0"></div><div class="wbar" id="w1"></div><div class="wbar" id="w2"></div>
+      <div class="wbar" id="w3"></div><div class="wbar" id="w4"></div><div class="wbar" id="w5"></div>
+      <div class="wbar" id="w6"></div>
+    </div>
+  </div>
+</div>
 
-<script>
-// ── BroadcastChannel — listens for commands from phone pad ──
-const ch = new BroadcastChannel('handgpt');
+<div class="card">
+  <div class="card-title">Live Sensor Monitor (Simulated)</div>
+  <table>
+    <thead><tr><th>Sensor</th><th>Status</th><th>Pitch</th><th>Roll</th><th>Filtered P</th><th>Filtered R</th></tr></thead>
+    <tbody id="sensor-tbody"></tbody>
+  </table>
+</div>
 
-// Sensor names and fake base values
-const SENSORS = ['Palm','Middle','Thumb','Ring','Little','Index'];
-const BASE_P  = [12, -5, 8, -3, 6, -8];
-const BASE_R  = [88, 15, 22, 10, 18, 12];
+<div class="card">
+  <div class="card-title">Gesture History</div>
+  <div id="history-wrap"><span style="font-size:11px;color:var(--text2);">No gestures yet</span></div>
+</div>
 
-let gestureCount = 0;
-let history = [];
-let waveTimer = null;
-let startTime = Date.now();
+<div class="card">
+  <div class="card-title">System Status</div>
+  <div class="status-row">
+    <div class="stat-item">Uptime: <span id="uptime">00:00</span></div>
+    <div class="stat-item">Gestures received: <span id="gcount">0</span></div>
+    <div class="stat-item">Last gesture: <span id="last-time">—</span></div>
+    <div class="stat-item">Firebase: <span id="fb-status">connecting...</span></div>
+  </div>
+</div>
+</div>
 
-// ── Build sensor table ──
-function buildTable(){
-  const tb = document.getElementById('sensor-tbody');
-  tb.innerHTML = SENSORS.map((name,i)=>`
-    <tr>
-      <td class="sn">${name}</td>
-      <td class="vok">✓</td>
-      <td id="rp${i}" style="color:var(--text2)">+${BASE_P[i].toFixed(1)}</td>
-      <td id="rr${i}" style="color:var(--text2)">+${BASE_R[i].toFixed(1)}</td>
-      <td id="fp${i}" style="color:var(--green);font-weight:700">+${BASE_P[i].toFixed(1)}</td>
-      <td id="fr${i}" style="color:var(--green);font-weight:700">+${BASE_R[i].toFixed(1)}</td>
-    </tr>
-  `).join('');
-}
-buildTable();
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-// ── Animate sensor values slightly to look live ──
+// ═══════════════════════════════════════════════
+// PASTE YOUR FIREBASE CONFIG HERE (both files!)
+// ═══════════════════════════════════════════════
+  const firebaseConfig = {
+    apiKey: "AIzaSyA5aabIknYuPFNOJXdWe1TwureuSESqV9M",
+    authDomain: "gesturex-a4cdb.firebaseapp.com",
+    projectId: "gesturex-a4cdb",
+    storageBucket: "gesturex-a4cdb.firebasestorage.app",
+    messagingSenderId: "480395168192",
+    appId: "1:480395168192:web:06aeb5acdafb67b2262025",
+    measurementId: "G-VM8K6RED7J"
+  };
+// ═══════════════════════════════════════════════
+
+const SENSORS=['Palm','Middle','Thumb','Ring','Little','Index'];
+const BASE_P=[12,-5,8,-3,6,-8], BASE_R=[88,15,22,10,18,12];
+let gestureCount=0,history=[],waveTimer=null,startTime=Date.now();
+
+// Build table
+document.getElementById('sensor-tbody').innerHTML=SENSORS.map((n,i)=>`
+  <tr><td class="sn">${n}</td><td class="vok">✓</td>
+  <td id="rp${i}" style="color:var(--text2)">+${BASE_P[i].toFixed(1)}</td>
+  <td id="rr${i}" style="color:var(--text2)">+${BASE_R[i].toFixed(1)}</td>
+  <td id="fp${i}" style="color:var(--green);font-weight:700">+${BASE_P[i].toFixed(1)}</td>
+  <td id="fr${i}" style="color:var(--green);font-weight:700">+${BASE_R[i].toFixed(1)}</td></tr>`).join('');
+
+// Animate sensors
 setInterval(()=>{
   SENSORS.forEach((_,i)=>{
-    const np = BASE_P[i] + (Math.random()-.5)*2;
-    const nr = BASE_R[i] + (Math.random()-.5)*2;
-    const fmt = v => (v>=0?'+':'')+v.toFixed(1);
-    document.getElementById(`rp${i}`).textContent = fmt(np);
-    document.getElementById(`rr${i}`).textContent = fmt(nr);
-    document.getElementById(`fp${i}`).textContent = fmt(np + (Math.random()-.5)*.4);
-    document.getElementById(`fr${i}`).textContent = fmt(nr + (Math.random()-.5)*.4);
+    const np=BASE_P[i]+(Math.random()-.5)*2,nr=BASE_R[i]+(Math.random()-.5)*2;
+    const f=v=>(v>=0?'+':'')+v.toFixed(1);
+    document.getElementById('rp'+i).textContent=f(np);
+    document.getElementById('rr'+i).textContent=f(nr);
+    document.getElementById('fp'+i).textContent=f(np+(Math.random()-.5)*.4);
+    document.getElementById('fr'+i).textContent=f(nr+(Math.random()-.5)*.4);
   });
-}, 120);
+},120);
 
-// ── Uptime counter ──
+// Uptime
 setInterval(()=>{
-  const s = Math.floor((Date.now()-startTime)/1000);
-  const m = Math.floor(s/60), sec = s%60;
-  document.getElementById('uptime').textContent =
-    String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
-}, 1000);
+  const s=Math.floor((Date.now()-startTime)/1000);
+  document.getElementById('uptime').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+},1000);
 
-// ── Wave animation when speaking ──
 function startWave(){
-  if(waveTimer) clearInterval(waveTimer);
-  waveTimer = setInterval(()=>{
-    for(let i=0;i<7;i++){
-      const h = 6 + Math.random()*22;
-      document.getElementById('w'+i).style.height = h+'px';
-    }
-  }, 80);
-  setTimeout(()=>{
-    clearInterval(waveTimer); waveTimer=null;
-    for(let i=0;i<7;i++) document.getElementById('w'+i).style.height='6px';
-  }, 2200);
+  if(waveTimer)clearInterval(waveTimer);
+  waveTimer=setInterval(()=>{for(let i=0;i<7;i++)document.getElementById('w'+i).style.height=(6+Math.random()*22)+'px';},80);
+  setTimeout(()=>{clearInterval(waveTimer);waveTimer=null;for(let i=0;i<7;i++)document.getElementById('w'+i).style.height='6px';},2200);
 }
 
-// ── Show gesture ──
-function showGesture(label, conf=92){
-  // Animate sensor values for this gesture
-  animateSensorsFor(label);
-
+function showGesture(label,name,conf){
+  conf=conf||(85+Math.floor(Math.random()*13));
+  // Sensor animation
+  const curls={'0':[0,1,1,1,1,1],'1':[0,0,1,1,1,0],'2':[0,0,0,1,1,0],'3':[0,0,0,0,1,0],'4':[0,0,0,0,0,1],'5':[0,0,0,0,0,0],'6':[0,1,1,1,0,0],'7':[0,1,1,0,0,0],'8':[0,1,0,0,0,0],'9':[0,0,1,1,1,0],'A':[0,1,1,1,1,1],'B':[0,0,0,0,0,0],'C':[0,.5,.5,.5,.5,.5],'D':[0,0,1,1,1,0],'E':[0,1,1,1,1,0],'F':[0,0,0,1,1,0],'G':[0,0,1,1,1,1],'H':[0,0,0,1,1,1],'I':[0,1,1,1,0,0],'J':[0,1,1,1,0,0],'HI':[0,0,0,0,0,0]};
+  const c=curls[label]||[0,0,0,0,0,0];
+  const isBack=['HI','H','I','J'].includes(label);
+  const f=v=>(v>=0?'+':'')+v.toFixed(1);
+  SENSORS.forEach((_,i)=>{
+    const nr=i===0?(isBack?-85:85):(BASE_R[i]+c[i]*30+(Math.random()-.5)*3);
+    const np=BASE_P[i]+c[i]*20+(Math.random()-.5)*2;
+    document.getElementById('fp'+i).textContent=f(np);
+    document.getElementById('fr'+i).textContent=f(nr);
+  });
   // Big label
-  const el = document.getElementById('gesture-label');
-  el.classList.remove('flash');
-  void el.offsetWidth; // reflow
-  el.textContent = label;
-  el.classList.add('flash');
-
-  // Face pill logic
-  const pill = document.getElementById('face-pill');
-  const isBack = ['HI','H','I','J'].includes(label);
-  pill.textContent = isBack ? 'OUT (HI)' : 'FRONT (5)';
-  pill.className = 'face-pill' + (isBack?' back':'');
-
-  // Confidence bar
-  document.getElementById('conf-text').textContent =
-    `Confidence: ${conf}%  •  KNN match`;
-  document.getElementById('conf-bar').style.width = conf+'%';
-  document.getElementById('match-sub').textContent =
-    `Gesture "${label}" matched via 3-NN · ${new Date().toLocaleTimeString()}`;
-
-  // Count & history
+  const el=document.getElementById('gesture-label');
+  el.classList.remove('flash');void el.offsetWidth;
+  el.textContent=label;el.classList.add('flash');
+  // Face pill
+  const pill=document.getElementById('face-pill');
+  pill.textContent=isBack?'OUT (HI)':'FRONT (5)';
+  pill.className='face-pill'+(isBack?' back':'');
+  // Conf
+  document.getElementById('conf-text').textContent=`Confidence: ${conf}%  •  KNN match`;
+  document.getElementById('conf-bar').style.width=conf+'%';
+  document.getElementById('match-sub').textContent=`"${name||label}" matched · ${new Date().toLocaleTimeString()}`;
+  // Stats
   gestureCount++;
-  document.getElementById('gcount').textContent = gestureCount;
-  document.getElementById('last-time').textContent = new Date().toLocaleTimeString();
-
-  history.unshift(label);
-  if(history.length>12) history.pop();
-  renderHistory();
-
-  // Speech
-  speak(label);
+  document.getElementById('gcount').textContent=gestureCount;
+  document.getElementById('last-time').textContent=new Date().toLocaleTimeString();
+  // History
+  history.unshift(label);if(history.length>12)history.pop();
+  const wrap=document.getElementById('history-wrap');
+  wrap.innerHTML=history.map((g,i)=>`<span class="hist-pill${i===0?' new':''}">${g}</span>`).join('');
+  setTimeout(()=>wrap.querySelectorAll('.hist-pill.new').forEach(p=>p.classList.remove('new')),600);
+  // Speak
+  if(window.speechSynthesis){window.speechSynthesis.cancel();window.speechSynthesis.speak(Object.assign(new SpeechSynthesisUtterance(label),{rate:.9,pitch:1}));}
   startWave();
 }
 
-// ── Animate sensor rows to reflect gesture ──
-function animateSensorsFor(label){
-  // Palm roll goes negative for back-facing gestures
-  const isBack = ['HI','H','I','J'].includes(label);
-  const palmRoll = isBack ? -85 : 85;
-  const fmt = v => (v>=0?'+':'')+v.toFixed(1);
-  // Finger curl varies by gesture
-  const curls = getCurls(label);
-  SENSORS.forEach((_, i)=>{
-    const nr = i===0 ? palmRoll : (BASE_R[i] + curls[i]*30 + (Math.random()-.5)*3);
-    const np = BASE_P[i] + curls[i]*20 + (Math.random()-.5)*2;
-    document.getElementById(`fp${i}`).textContent = fmt(np);
-    document.getElementById(`fr${i}`).textContent = fmt(nr);
-  });
-}
-
-function getCurls(label){
-  // Returns per-sensor curl factor 0=open 1=closed for each sensor
-  const map = {
-    '0':[0,1,1,1,1,1], '1':[0,0,1,1,1,0],
-    '2':[0,0,0,1,1,0], '3':[0,0,0,0,1,0],
-    '4':[0,0,0,0,0,1], '5':[0,0,0,0,0,0],
-    '6':[0,1,1,1,0,0], '7':[0,1,1,0,0,0],
-    '8':[0,1,0,0,0,0], '9':[0,0,1,1,1,0],
-    'A':[0,1,1,1,1,1], 'B':[0,0,0,0,0,0],
-    'C':[0,.5,.5,.5,.5,.5],'D':[0,0,1,1,1,0],
-    'E':[0,1,1,1,1,0], 'F':[0,0,0,1,1,0],
-    'G':[0,0,1,1,1,1], 'H':[0,0,0,1,1,1],
-    'I':[0,1,1,1,0,0], 'J':[0,1,1,1,0,0],
-    'HI':[0,0,0,0,0,0],
-  };
-  return map[label] || [0,0,0,0,0,0];
-}
-
-// ── History pills ──
-function renderHistory(){
-  const wrap = document.getElementById('history-wrap');
-  wrap.innerHTML = history.map((g,i)=>
-    `<span class="hist-pill${i===0?' new':''}">${g}</span>`
-  ).join('');
-  setTimeout(()=>{
-    const pills = wrap.querySelectorAll('.hist-pill.new');
-    pills.forEach(p=>p.classList.remove('new'));
-  }, 600);
-}
-
-// ── Speech ──
-let lastSpoken = '';
-function speak(text){
-  if(!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.rate = 0.9;
-  u.pitch = 1;
-  window.speechSynthesis.speak(u);
-  lastSpoken = text;
-}
-
-// ── Receive from phone pad ──
-ch.onmessage = e => {
-  if(e.data && e.data.type === 'gesture'){
-    const conf = 85 + Math.floor(Math.random()*13);
-    showGesture(e.data.label, conf);
+// Firebase
+const configured = firebaseConfig.apiKey !== "YOUR_API_KEY";
+if(!configured){
+  document.getElementById('fb-chip').textContent='Demo Mode';
+  document.getElementById('conn-label').textContent='Demo Mode';
+  document.getElementById('fb-status').textContent='Paste your Firebase config to go live';
+} else {
+  document.getElementById('setup-banner').classList.add('hide');
+  try{
+    const app=initializeApp(firebaseConfig);
+    const db=getDatabase(app);
+    onValue(ref(db,'handgpt/gesture'),(snap)=>{
+      const d=snap.val();
+      if(d&&d.label) showGesture(d.label,d.name);
+    });
+    document.getElementById('fb-chip').textContent='Firebase: OK';
+    document.getElementById('fb-chip').style.cssText='border-color:var(--green);color:var(--green);';
+    document.getElementById('conn-label').textContent='Connected';
+    document.getElementById('fb-status').textContent='Connected ✓';
+  }catch(e){
+    document.getElementById('fb-status').textContent='Error: '+e.message;
   }
-};
-
-// ── Also listen for storage events (cross-window fallback) ──
-window.addEventListener('storage', e => {
-  if(e.key === 'handgpt_gesture' && e.newValue){
-    const d = JSON.parse(e.newValue);
-    const conf = 85 + Math.floor(Math.random()*13);
-    showGesture(d.label, conf);
-  }
-});
-
-function openPhone(){
-  window.open('phone.html','HandGPT Phone','width=420,height=720');
 }
 </script>
 </body>
